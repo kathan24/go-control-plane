@@ -39,6 +39,7 @@ type Server interface {
 	v2.RouteDiscoveryServiceServer
 	v2.ListenerDiscoveryServiceServer
 	discovery.AggregatedDiscoveryServiceServer
+	discovery.RuntimeDiscoveryServiceServer
 	discovery.SecretDiscoveryServiceServer
 
 	// Fetch is the universal fetch method.
@@ -332,6 +333,10 @@ func (s *server) StreamAggregatedResources(stream discovery.AggregatedDiscoveryS
 	return s.handler(stream, cache.AnyType)
 }
 
+func (s *server) StreamRuntime(stream discovery.RuntimeDiscoveryService_StreamRuntimeServer) error {
+	return s.handler(stream, cache.RuntimeType)
+}
+
 func (s *server) StreamEndpoints(stream v2.EndpointDiscoveryService_StreamEndpointsServer) error {
 	return s.handler(stream, cache.EndpointType)
 }
@@ -410,7 +415,19 @@ func (s *server) FetchSecrets(ctx context.Context, req *v2.DiscoveryRequest) (*v
 	return s.Fetch(ctx, req)
 }
 
+func (s *server) FetchRuntime(ctx context.Context, req *v2.DiscoveryRequest) (*v2.DiscoveryResponse, error) {
+	if req == nil {
+		return nil, status.Errorf(codes.Unavailable, "empty request")
+	}
+	req.TypeUrl = cache.RuntimeType
+	return s.Fetch(ctx, req)
+}
+
 func (s *server) DeltaAggregatedResources(_ discovery.AggregatedDiscoveryService_DeltaAggregatedResourcesServer) error {
+	return errors.New("not implemented")
+}
+
+func (s *server) DeltaRuntime(_ discovery.RuntimeDiscoveryService_DeltaRuntimeServer) error {
 	return errors.New("not implemented")
 }
 

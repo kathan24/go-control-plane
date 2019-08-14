@@ -22,6 +22,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
 	hcm "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/http_connection_manager/v2"
 	"github.com/envoyproxy/go-control-plane/pkg/util"
+	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v2"
 )
 
 // Resource is the base interface for the xDS payload.
@@ -38,7 +39,7 @@ const (
 	RouteType    = typePrefix + "RouteConfiguration"
 	ListenerType = typePrefix + "Listener"
 	SecretType   = typePrefix + "auth.Secret"
-
+	RuntimeType  = "type.googleapis.com/envoy.service.discovery.v2.Runtime"
 	// AnyType is used only by ADS
 	AnyType = ""
 )
@@ -51,6 +52,7 @@ var (
 		RouteType,
 		ListenerType,
 		SecretType,
+		RuntimeType,
 	}
 )
 
@@ -66,6 +68,8 @@ func GetResourceName(res Resource) string {
 	case *v2.Listener:
 		return v.GetName()
 	case *auth.Secret:
+		return v.GetName()
+	case *discovery.Runtime:
 		return v.GetName()
 	default:
 		return ""
